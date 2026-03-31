@@ -1,7 +1,7 @@
 services:
-  - type: static
+  - type: web
     name: weave-landing-page
-    env: static
+    runtime: static
     staticPublishPath: ./
     headers:
       - path: /*
