@@ -972,31 +972,43 @@
 
       if (!valid) return;
 
+      var submitBtn = form.querySelector('button[type="submit"]');
+      var originalBtnText = submitBtn.innerText;
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Sending...';
+
       var payload = {
         name: name,
         email: email,
         role: role,
-        use_case: useCase
+        use_case: useCase,
+        source: 'Weave Landing Page'
       };
 
-      var subject = encodeURIComponent('Weave Waitlist Inquiry from ' + name);
-      var body = encodeURIComponent(
-        'New inquiry for Weave:\n\n' +
-        'Name: ' + name + '\n' +
-        'Email: ' + email + '\n' +
-        'Role: ' + role + '\n' +
-        'Use Case: ' + (useCase || 'N/A') + '\n\n' +
-        'Sent from Weave Landing Page'
-      );
+      // REPLACE THIS WITH YOUR n8n WEBHOOK URL
+      var N8N_WEBHOOK_URL = 'https://n8n-ngrok-0qk4.onrender.com/webhook/weave';
 
-      var mailtoUrl = 'mailto:hello@livingcode.now?subject=' + subject + '&body=' + body;
-
-      // Trigger the email client
-      window.location.href = mailtoUrl;
-
-      // Still show the confirmation message on the page
-      formWrap.style.display = 'none';
-      confirmation.style.display = 'block';
+      fetch(N8N_WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+      .then(function(response) {
+        if (response.ok) {
+          formWrap.style.display = 'none';
+          confirmation.style.display = 'block';
+        } else {
+          throw new Error('Network response was not ok.');
+        }
+      })
+      .catch(function(error) {
+        console.error('Error:', error);
+        submitBtn.disabled = false;
+        submitBtn.innerText = originalBtnText;
+        alert('There was an error submitting the form. Please try again or contact us directly.');
+      });
     });
   </script>
 
